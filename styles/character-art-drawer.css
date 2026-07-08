@@ -1,0 +1,304 @@
+.character-art-drawer {
+  min-width: 180px;
+  min-height: 220px;
+  max-width: 80vw;
+  max-height: 85vh;
+}
+
+.character-art-drawer .window-content {
+  padding: 0;
+  overflow: hidden;
+}
+
+.character-art-drawer .window-resize-handle {
+  inset: auto auto 1px 1px;
+  cursor: nesw-resize;
+  transform: scaleX(-1);
+}
+
+.cad-shell {
+  --cad-accent: #2f7fbb;
+  --cad-accent-strong: #f0b33f;
+  --cad-bg: rgba(255, 255, 255, 0.92);
+  --cad-bg-soft: rgba(0, 0, 0, 0.05);
+  --cad-border: rgba(0, 0, 0, 0.22);
+  --cad-text-muted: rgba(0, 0, 0, 0.68);
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  background: var(--cad-bg);
+  color: var(--color-text-primary, #191813);
+}
+
+.theme-dark .cad-shell,
+.themed.theme-dark .cad-shell,
+.cad-shell.theme-dark {
+  --cad-accent: #66a7d7;
+  --cad-accent-strong: #f6c15d;
+  --cad-bg: rgba(24, 24, 28, 0.94);
+  --cad-bg-soft: rgba(255, 255, 255, 0.08);
+  --cad-border: rgba(255, 255, 255, 0.22);
+  --cad-text-muted: rgba(255, 255, 255, 0.72);
+  color: var(--color-text-light-primary, #f0f0e0);
+}
+
+.cad-actor-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--cad-border);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.cad-actor-heading > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cad-mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 8px 8px 0;
+}
+
+.cad-mode-button {
+  min-width: 0;
+  height: 30px;
+  border: 1px solid var(--cad-border);
+  border-radius: 6px;
+  background: var(--cad-bg-soft);
+  color: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cad-mode-button.is-active {
+  border-color: var(--cad-accent);
+  background: color-mix(in srgb, var(--cad-accent) 20%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cad-accent) 45%, transparent);
+}
+
+.cad-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px 32px;
+  gap: 6px;
+  align-items: center;
+  padding: 8px;
+}
+
+.cad-tool-button,
+.cad-icon-button {
+  height: 32px;
+  min-width: 0;
+  border: 1px solid var(--cad-border);
+  border-radius: 6px;
+  background: var(--cad-bg-soft);
+  color: inherit;
+}
+
+.cad-tool-button {
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, auto);
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cad-tool-button > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cad-icon-button {
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+}
+
+.cad-hard-delete-toggle.is-active {
+  border-color: #b51f2a;
+  background: rgba(181, 31, 42, 0.18);
+  color: #b51f2a;
+  box-shadow: inset 0 0 0 1px rgba(181, 31, 42, 0.45);
+}
+
+.theme-dark .cad-hard-delete-toggle.is-active,
+.themed.theme-dark .cad-hard-delete-toggle.is-active {
+  border-color: #ff626d;
+  background: rgba(255, 98, 109, 0.2);
+  color: #ff9aa2;
+  box-shadow: inset 0 0 0 1px rgba(255, 98, 109, 0.48);
+}
+
+.cad-tool-button:disabled,
+.cad-icon-button:disabled,
+.cad-thumbnail-button:disabled,
+.cad-remove-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.cad-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: min-content;
+  gap: 8px;
+  min-height: 0;
+  padding: 0 8px 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.cad-thumbnail {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--cad-border);
+  border-radius: 6px;
+  background: var(--cad-bg-soft);
+  overflow: hidden;
+}
+
+.cad-thumbnail.is-active {
+  border-color: var(--cad-accent-strong);
+  outline: 2px solid var(--cad-accent-strong);
+  outline-offset: -2px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cad-accent-strong) 32%, transparent);
+}
+
+.cad-thumbnail-button {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  overflow: hidden;
+}
+
+.cad-preview {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+}
+
+.cad-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  color: var(--cad-text-muted);
+  font-size: 26px;
+}
+
+.cad-load-fallback {
+  grid-row: 1;
+}
+
+.cad-thumbnail-label {
+  min-width: 0;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cad-remove-button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 12px;
+}
+
+.cad-remove-button.is-hard-delete {
+  border-color: rgba(255, 210, 214, 0.9);
+  background: rgba(181, 31, 42, 0.92);
+}
+
+.cad-empty {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  place-items: center;
+  min-height: 126px;
+  border: 1px dashed var(--cad-border);
+  border-radius: 6px;
+  color: var(--cad-text-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.cad-empty > i {
+  font-size: 24px;
+}
+
+.cad-drawer-button {
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  border-radius: 6px 0 0 6px;
+  background: rgba(245, 245, 240, 0.96);
+  color: #1f1f1f;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  transform: translateY(-50%);
+}
+
+.cad-drawer-button:hover,
+.cad-drawer-button:focus {
+  box-shadow: 0 0 0 2px rgba(47, 127, 187, 0.35), 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.cad-drawer-button.cad-header-button {
+  position: static;
+  width: 28px;
+  height: 28px;
+  transform: none;
+}
+
+.theme-dark .cad-drawer-button,
+.themed.theme-dark .cad-drawer-button {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(32, 32, 36, 0.96);
+  color: #f3f3eb;
+}

@@ -1,0 +1,72 @@
+<section class="cad-shell" data-mode="{{mode}}">
+  <div class="cad-actor-heading">
+    <i class="fa-solid fa-images" inert></i>
+    <span title="{{actorName}}">{{actorName}}</span>
+  </div>
+
+  <div class="cad-mode-switch" role="tablist" aria-label="{{localize 'CAD.ModeSwitch'}}">
+    <button type="button" class="cad-mode-button {{#if isAvatarMode}}is-active{{/if}}"
+            data-action="switchMode" data-mode="avatar" role="tab" aria-selected="{{isAvatarMode}}">
+      {{localize "CAD.ModeAvatar"}}
+    </button>
+    <button type="button" class="cad-mode-button {{#if isTokenMode}}is-active{{/if}}"
+            data-action="switchMode" data-mode="token" role="tab" aria-selected="{{isTokenMode}}">
+      {{localize "CAD.ModeToken"}}
+    </button>
+  </div>
+
+  <div class="cad-toolbar">
+    <button type="button" class="cad-tool-button" data-action="addImage"
+            title="{{localize 'CAD.AddImage'}}" aria-label="{{localize 'CAD.AddImage'}}"
+            {{#if readOnly}}disabled{{/if}}>
+      <i class="fa-solid fa-plus" inert></i>
+      <span>{{localize "CAD.AddImage"}}</span>
+    </button>
+    <button type="button" class="cad-icon-button" data-action="refresh"
+            title="{{localize 'CAD.Refresh'}}" aria-label="{{localize 'CAD.Refresh'}}"
+            {{#if readOnly}}disabled{{/if}}>
+      <i class="fa-solid fa-rotate" inert></i>
+    </button>
+    <button type="button" class="cad-icon-button cad-hard-delete-toggle {{#if hardDelete}}is-active{{/if}}"
+            data-action="toggleHardDelete" title="{{hardDeleteTitle}}" aria-label="{{hardDeleteTitle}}"
+            aria-pressed="{{hardDelete}}" {{#if readOnly}}disabled{{/if}}>
+      <i class="fa-solid fa-trash-can" inert></i>
+    </button>
+  </div>
+
+  <div class="cad-gallery" role="list">
+    {{#each images}}
+    <div class="cad-thumbnail {{#if active}}is-active{{/if}}" role="listitem"
+         data-path="{{path}}" title="{{name}}" {{#if active}}aria-current="true"{{/if}}>
+      <button type="button" class="cad-thumbnail-button" data-action="selectImage" data-path="{{path}}"
+              aria-label="{{name}}" {{#if ../readOnly}}disabled{{/if}}>
+        {{#if isVideo}}
+        <video class="cad-preview" src="{{path}}" muted loop playsinline preload="metadata"></video>
+        {{else if isImage}}
+        <img class="cad-preview" src="{{path}}" alt="{{name}}" loading="lazy">
+        {{else}}
+        <div class="cad-fallback" aria-hidden="true">
+          <i class="fa-solid fa-file-image" inert></i>
+        </div>
+        {{/if}}
+        <div class="cad-fallback cad-load-fallback" hidden aria-hidden="true">
+          <i class="fa-solid fa-triangle-exclamation" inert></i>
+        </div>
+        <span class="cad-thumbnail-label">{{name}}</span>
+      </button>
+      {{#if canRemove}}
+      <button type="button" class="cad-remove-button {{#if ../hardDelete}}is-hard-delete{{/if}}"
+              data-action="removeImage" data-path="{{path}}"
+              title="{{removeTitle}}" aria-label="{{removeTitle}}" {{#if ../readOnly}}disabled{{/if}}>
+        <i class="fa-solid fa-xmark" inert></i>
+      </button>
+      {{/if}}
+    </div>
+    {{else}}
+    <div class="cad-empty">
+      <i class="fa-regular fa-image" inert></i>
+      <span>{{localize "CAD.NoImages"}}</span>
+    </div>
+    {{/each}}
+  </div>
+</section>
