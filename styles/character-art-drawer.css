@@ -10,8 +10,11 @@
   overflow: hidden;
 }
 
-.character-art-drawer .window-resize-handle {
+.character-art-drawer .window-resize-handle,
+.character-art-drawer .window-resizable-handle {
   inset: auto auto 1px 1px;
+  left: 1px;
+  right: auto;
   cursor: nesw-resize;
   transform: scaleX(-1);
 }

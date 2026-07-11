@@ -2,6 +2,20 @@
 
 All notable changes to Character Art Drawer are documented in this file.
 
+## [1.1.0] - 2026-07-11
+
+### Added
+
+- Foundry VTT v12 Build 331 compatibility.
+- D&D 5e v4.3.9 compatibility.
+
+### Changed
+
+- Replaced the drawer window implementation with the legacy Foundry `Application` API so the same module build can run on Foundry v12 and v13.
+- Updated the module manifest compatibility range so Foundry v12/v13 are available with compatibility risk instead of verified status.
+- Updated the D&D 5e relationship compatibility range so D&D 5e v4.x/v5.x are available without claiming verified status.
+- Updated left-side resize handling to support both legacy and ApplicationV2 resize handles.
+
 ## [1.0.0] - 2026-07-08
 
 ### Added

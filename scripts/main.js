@@ -170,7 +170,12 @@ function findPortraitContainer(html) {
     "[data-edit='img']"
   ];
   for ( const selector of selectors ) {
-    const found = html.querySelector(selector);
+    let found = null;
+    try {
+      found = html.querySelector(selector);
+    } catch (_err) {
+      continue;
+    }
     if ( !found ) continue;
     if ( found instanceof HTMLImageElement || found instanceof HTMLVideoElement ) return found.parentElement;
     return found;
@@ -389,6 +394,7 @@ async function renderDrawerForSheet(app, actor) {
   const drawer = existing ?? new CharacterArtDrawer(actor, app, key);
   drawerBySheet.set(key, drawer);
   await drawer.render(true);
+  await drawer.waitForRender();
   drawer.positionNearSheet();
   drawer.bringToFront();
 }
@@ -441,7 +447,7 @@ function imageKind(path) {
 }
 
 function getFilePickerImplementation() {
-  return foundry.applications.apps.FilePicker?.implementation ?? globalThis.FilePicker;
+  return foundry.applications?.apps?.FilePicker?.implementation ?? globalThis.FilePicker;
 }
 
 function isExternalUrl(path) {
@@ -524,57 +530,43 @@ function rerenderDrawersForActor(actor) {
   }
 }
 
-class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+class CharacterArtDrawer extends Application {
   constructor(actor, sheet, key) {
     const state = getActorUiState(actor);
     const width = Number.isFinite(state.width) ? state.width : DEFAULT_SIZE.width;
     const height = Number.isFinite(state.height) ? state.height : DEFAULT_SIZE.height;
     super({
       id: `${MODULE_ID}-${sanitizeId(key)}`,
-      position: { width, height },
-      window: {
-        title: `${game.i18n.localize("CAD.Title")}: ${actor.name}`
-      }
+      title: `${game.i18n.localize("CAD.Title")}: ${actor.name}`,
+      template: `modules/${MODULE_ID}/templates/art-drawer.hbs`,
+      width,
+      height,
+      resizable: true,
+      minimizable: false
     });
     this.actor = actor;
     this.sheet = sheet;
     this.key = key;
     this.mode = MODES.has(state.lastMode) ? state.lastMode : getDefaultMode();
     this.hardDelete = Boolean(game.settings.get(MODULE_ID, "hardDeleteByDefault"));
+    this._currentRenderReady = null;
   }
 
-  static DEFAULT_OPTIONS = {
-    classes: ["character-art-drawer"],
-    tag: "section",
-    window: {
-      icon: "fa-solid fa-images",
-      minimizable: false,
-      resizable: true
-    },
-    actions: {
-      addImage: CharacterArtDrawer.#onAddImage,
-      refresh: CharacterArtDrawer.#onRefresh,
-      toggleHardDelete: CharacterArtDrawer.#onToggleHardDelete,
-      removeImage: CharacterArtDrawer.#onRemoveImage,
-      selectImage: CharacterArtDrawer.#onSelectImage,
-      switchMode: CharacterArtDrawer.#onSwitchMode
-    }
-  };
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      classes: ["character-art-drawer"],
+      template: `modules/${MODULE_ID}/templates/art-drawer.hbs`,
+      width: DEFAULT_SIZE.width,
+      height: DEFAULT_SIZE.height,
+      resizable: true,
+      minimizable: false
+    });
+  }
 
-  static PARTS = {
-    content: {
-      template: `modules/${MODULE_ID}/templates/art-drawer.hbs`
-    }
-  };
-
-  async _preFirstRender(context, options) {
-    await super._preFirstRender(context, options);
+  async getData(options={}) {
     await ensureCurrentImages(this.actor);
-  }
-
-  async _prepareContext(options) {
-    const context = await super._prepareContext(options);
-    const images = await this.#prepareImages();
+    const context = await super.getData(options);
+    const images = await this.prepareImages();
     const readOnly = !canEditActor(this.actor);
     return {
       ...context,
@@ -589,27 +581,82 @@ class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationM
     };
   }
 
-  async _onRender(context, options) {
-    await super._onRender(context, options);
-    this.#activateLeftResizeHandle();
-    this.#activateMediaFallbacks();
+  activateListeners(html) {
+    super.activateListeners(html);
+    const element = normalizeElement(html);
+    if ( !element ) return;
+
+    element.addEventListener("click", event => {
+      const target = event.target.closest("[data-action]");
+      if ( !target || !element.contains(target) || target.disabled ) return;
+      const action = target.dataset.action;
+      switch ( action ) {
+        case "addImage":
+          void this.onAddImage(event);
+          break;
+        case "refresh":
+          void this.onRefresh(event);
+          break;
+        case "toggleHardDelete":
+          void this.onToggleHardDelete(event);
+          break;
+        case "removeImage":
+          void this.onRemoveImage(event, target);
+          break;
+        case "selectImage":
+          void this.onSelectImage(event, target);
+          break;
+        case "switchMode":
+          void this.onSwitchMode(event, target);
+          break;
+        default:
+          break;
+      }
+    });
+
+    this.activateLeftResizeHandle();
+    this.activateMediaFallbacks();
   }
 
-  _onPosition(position) {
-    super._onPosition(position);
-    const width = Number(position?.width ?? this.position?.width);
-    const height = Number(position?.height ?? this.position?.height);
+  render(force=false, options={}) {
+    const rendered = super.render(force, options);
+    this._currentRenderReady = this.waitForElement();
+    return rendered;
+  }
+
+  async waitForRender() {
+    await this._currentRenderReady;
+  }
+
+  async waitForElement() {
+    for ( let i = 0; i < 30; i += 1 ) {
+      if ( normalizeElement(this.element) ) return;
+      await new Promise(resolve => window.requestAnimationFrame(resolve));
+    }
+  }
+
+  setPosition(position={}) {
+    const result = super.setPosition(position);
+    const width = Number(this.position?.width ?? position?.width);
+    const height = Number(this.position?.height ?? position?.height);
     if ( Number.isFinite(width) && Number.isFinite(height) ) {
       void updateActorUiState(this.actor, {
         width: Math.max(MIN_SIZE.width, Math.round(width)),
         height: Math.max(MIN_SIZE.height, Math.round(height))
       });
     }
+    return result;
   }
 
-  _onClose(options) {
-    super._onClose(options);
+  async close(options={}) {
+    const result = await super.close(options);
     if ( drawerBySheet.get(this.key) === this ) drawerBySheet.delete(this.key);
+    return result;
+  }
+
+  bringToFront() {
+    if ( typeof this.bringToTop === "function" ) return this.bringToTop();
+    return this;
   }
 
   positionNearSheet() {
@@ -636,7 +683,7 @@ class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationM
     this.setPosition({ left, top, width, height });
   }
 
-  async #prepareImages() {
+  async prepareImages() {
     const activePath = normalizePath(getCurrentPath(this.actor, this.mode));
     const gallery = await getGallery(this.actor, this.mode);
     return gallery.map(image => {
@@ -654,8 +701,10 @@ class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationM
     });
   }
 
-  #activateMediaFallbacks() {
-    for ( const media of this.element.querySelectorAll(".cad-preview") ) {
+  activateMediaFallbacks() {
+    const element = normalizeElement(this.element);
+    if ( !element ) return;
+    for ( const media of element.querySelectorAll(".cad-preview") ) {
       media.addEventListener("error", () => {
         const button = media.closest(".cad-thumbnail-button");
         const fallback = button?.querySelector(".cad-load-fallback");
@@ -674,20 +723,29 @@ class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationM
     }
   }
 
-  #activateLeftResizeHandle() {
-    const handle = this.element.querySelector(".window-resize-handle");
+  activateLeftResizeHandle() {
+    const element = normalizeElement(this.element);
+    const handle = element?.querySelector(".window-resize-handle, .window-resizable-handle");
     if ( !handle || handle.dataset.cadLeftResizeBound ) return;
     handle.dataset.cadLeftResizeBound = "true";
-    handle.addEventListener("pointerdown", event => this.#onLeftResizeStart(event), { capture: true });
+    handle.addEventListener("pointerdown", event => this.onLeftResizeStart(event), { capture: true });
+    handle.addEventListener("mousedown", event => this.onLeftResizeStart(event), { capture: true });
   }
 
-  #onLeftResizeStart(event) {
+  onLeftResizeStart(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
+    if ( this._resizingFromLeft ) return;
+    this._resizingFromLeft = true;
     this.bringToFront();
 
     const position = this.position ?? {};
-    const rect = this.element.getBoundingClientRect();
+    const element = normalizeElement(this.element);
+    const rect = element?.getBoundingClientRect();
+    if ( !rect ) {
+      this._resizingFromLeft = false;
+      return;
+    }
     const scale = Number(position.scale) || 1;
     const width = Number(position.width) || rect.width;
     const height = Number(position.height) || rect.height;
@@ -724,17 +782,22 @@ class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationM
 
     const end = endEvent => {
       endEvent.preventDefault();
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", end);
-      window.removeEventListener("pointercancel", end);
+      this._resizingFromLeft = false;
+      window.removeEventListener(moveEventName, move);
+      window.removeEventListener(upEventName, end);
+      window.removeEventListener(cancelEventName, end);
     };
 
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", end);
-    window.addEventListener("pointercancel", end);
+    const useMouseEvents = event.type === "mousedown";
+    const moveEventName = useMouseEvents ? "mousemove" : "pointermove";
+    const upEventName = useMouseEvents ? "mouseup" : "pointerup";
+    const cancelEventName = useMouseEvents ? "mouseup" : "pointercancel";
+    window.addEventListener(moveEventName, move);
+    window.addEventListener(upEventName, end);
+    window.addEventListener(cancelEventName, end);
   }
 
-  static async #onSwitchMode(event, target) {
+  async onSwitchMode(event, target) {
     event.preventDefault();
     const mode = target.dataset.mode;
     if ( !MODES.has(mode) || mode === this.mode ) return;
@@ -743,7 +806,7 @@ class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationM
     await this.render(false);
   }
 
-  static async #onAddImage(event) {
+  async onAddImage(event) {
     event.preventDefault();
     if ( !canEditActor(this.actor) ) {
       ui.notifications.warn(game.i18n.localize("CAD.NoPermission"));
@@ -751,7 +814,7 @@ class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationM
     }
 
     const current = getCurrentPath(this.actor, this.mode);
-    const FilePicker = foundry.applications.apps.FilePicker?.implementation ?? globalThis.FilePicker;
+    const FilePicker = getFilePickerImplementation();
     if ( !FilePicker ) {
       ui.notifications.error(game.i18n.localize("CAD.FilePickerUnavailable"));
       return;
@@ -766,7 +829,7 @@ class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationM
     }).render(true);
   }
 
-  static async #onRefresh(event) {
+  async onRefresh(event) {
     event.preventDefault();
     if ( !canEditActor(this.actor) ) {
       ui.notifications.warn(game.i18n.localize("CAD.NoPermission"));
@@ -798,20 +861,20 @@ class CharacterArtDrawer extends foundry.applications.api.HandlebarsApplicationM
     }
   }
 
-  static async #onToggleHardDelete(event) {
+  async onToggleHardDelete(event) {
     event.preventDefault();
     this.hardDelete = !this.hardDelete;
     if ( this.hardDelete ) ui.notifications.warn(game.i18n.localize("CAD.HardDeleteEnabled"));
     await this.render(false);
   }
 
-  static async #onSelectImage(event, target) {
+  async onSelectImage(event, target) {
     event.preventDefault();
     const path = target.dataset.path;
     if ( await setActiveImage(this.actor, this.mode, path) ) await this.render(false);
   }
 
-  static async #onRemoveImage(event, target) {
+  async onRemoveImage(event, target) {
     event.preventDefault();
     if ( !canEditActor(this.actor) ) {
       ui.notifications.warn(game.i18n.localize("CAD.NoPermission"));

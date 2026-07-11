@@ -18,8 +18,8 @@ Character Art Drawer is a Foundry VTT module for Dungeons & Dragons 5th Edition 
 
 ## Compatibility
 
-- Foundry VTT: v13, verified with Build 351.
-- Game system: D&D 5e, minimum 5.2.5.
+- Foundry VTT: v12 and v13. The manifest intentionally marks these versions as unverified so Foundry shows the module as available at your own risk.
+- Game system: D&D 5e v4.x and v5.x. The module has been smoke-tested with D&D 5e v4.3.9 on Foundry VTT v12 Build 331.
 
 The module only activates for D&D 5e character actors.
 
