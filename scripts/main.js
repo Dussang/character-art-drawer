@@ -2,6 +2,7 @@ const MODULE_ID = "character-art-drawer";
 const FLAG_AVATARS = "avatars";
 const FLAG_TOKENS = "tokens";
 const MODES = new Set(["avatar", "token"]);
+const SUPPORTED_ACTOR_TYPES = new Set(["character", "npc"]);
 const DEFAULT_SIZE = Object.freeze({ width: 260, height: 420 });
 const MIN_SIZE = Object.freeze({ width: 180, height: 220 });
 const MAX_VIEWPORT = Object.freeze({ width: 0.8, height: 0.85 });
@@ -79,7 +80,11 @@ function registerSheetHooks() {
     "renderActorSheetV2",
     "renderBaseActorSheet",
     "renderCharacterActorSheet",
-    "renderCharacterActorSheet5e"
+    "renderCharacterActorSheet5e",
+    "renderActorSheet5eNPC",
+    "renderActorSheet5eNPC2",
+    "renderNPCActorSheet",
+    "renderNPCActorSheet5e"
   ];
   const closeHooks = [
     "closeApplicationV2",
@@ -88,7 +93,11 @@ function registerSheetHooks() {
     "closeActorSheetV2",
     "closeBaseActorSheet",
     "closeCharacterActorSheet",
-    "closeCharacterActorSheet5e"
+    "closeCharacterActorSheet5e",
+    "closeActorSheet5eNPC",
+    "closeActorSheet5eNPC2",
+    "closeNPCActorSheet",
+    "closeNPCActorSheet5e"
   ];
 
   for ( const hook of renderHooks ) Hooks.on(hook, (app, element) => injectButton(app, element));
@@ -109,6 +118,10 @@ function canEditActor(actor) {
   return Boolean(actor.isOwner);
 }
 
+function isSupportedActor(actor) {
+  return Boolean(actor && SUPPORTED_ACTOR_TYPES.has(actor.type));
+}
+
 function normalizeElement(element) {
   if ( !element ) return null;
   if ( element instanceof HTMLElement ) return element;
@@ -122,7 +135,7 @@ function injectButton(app, element) {
   if ( game.system?.id !== "dnd5e" ) return;
   if ( app instanceof CharacterArtDrawer ) return;
   const actor = getActorFromSheet(app);
-  if ( !actor || actor.type !== "character" ) return;
+  if ( !isSupportedActor(actor) ) return;
 
   const html = normalizeElement(element) ?? normalizeElement(app?.element);
   if ( !html || html.querySelector("[data-character-art-drawer-button]") ) return;
@@ -499,6 +512,7 @@ async function removeGalleryPath(actor, mode, path, { allModes=false }={}) {
 
 async function onUpdateActor(actor, changed, _options, userId) {
   if ( game.system?.id !== "dnd5e" ) return;
+  if ( !isSupportedActor(actor) ) return;
   if ( !game.settings.get(MODULE_ID, "autoCaptureExternalChanges") ) return;
   if ( userId && userId !== game.user?.id ) return;
   if ( isOnlyModuleFlagsChange(changed) ) return;

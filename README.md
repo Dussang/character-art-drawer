@@ -1,10 +1,10 @@
 # Character Art Drawer
 
-Character Art Drawer is a Foundry VTT module for Dungeons & Dragons 5th Edition character sheets. It adds a compact side drawer where users can keep, preview, and switch character avatar and token artwork without leaving the actor sheet workflow.
+Character Art Drawer is a Foundry VTT module for Dungeons & Dragons 5th Edition character and NPC sheets. It adds a compact side drawer where users can keep, preview, and switch actor avatar and token artwork without leaving the sheet workflow.
 
 ## Features
 
-- Adds an art drawer button to D&D 5e character sheets.
+- Adds an art drawer button to D&D 5e character and NPC sheets.
 - Stores separate avatar and token image histories per actor.
 - Switches the actor avatar image from the drawer.
 - Switches the prototype token image from the drawer.
@@ -13,7 +13,7 @@ Character Art Drawer is a Foundry VTT module for Dungeons & Dragons 5th Edition 
 - Supports soft delete from gallery history.
 - Includes an optional hard delete mode, with safety checks and active-image protection.
 - Prevents deleting the currently active image from the drawer.
-- Supports left-side resizing so the drawer can sit beside the character sheet.
+- Supports left-side resizing so the drawer can sit beside the actor sheet.
 - Includes English, Russian, Spanish, Brazilian Portuguese, French, Japanese, and Simplified Chinese localization.
 
 ## Compatibility
@@ -21,7 +21,7 @@ Character Art Drawer is a Foundry VTT module for Dungeons & Dragons 5th Edition 
 - Foundry VTT: v12 and v13. The manifest intentionally marks these versions as unverified so Foundry shows the module as available at your own risk.
 - Game system: D&D 5e v4.x and v5.x. The module has been smoke-tested with D&D 5e v4.3.9 on Foundry VTT v12 Build 331.
 
-The module only activates for D&D 5e character actors.
+The module only activates for D&D 5e character and NPC actors.
 
 ## Demo
 
@@ -54,7 +54,7 @@ When this module is published, install it from its public `module.json` manifest
 
 ## Usage
 
-Open a D&D 5e character sheet and click the drawer button near the sheet header. Use the Avatar and Token tabs to manage the actor's portrait and prototype token art.
+Open a D&D 5e character or NPC sheet and click the drawer button near the sheet header. Use the Avatar and Token tabs to manage the actor's portrait and prototype token art.
 
 The plus button adds an image to the current gallery tab. Selecting an image makes it active for the actor. The scene token update button applies the actor's current prototype token image to matching linked tokens on the active scene.
 

@@ -2,6 +2,12 @@
 
 All notable changes to Character Art Drawer are documented in this file.
 
+## [1.2.0] - 2026-07-11
+
+### Added
+
+- D&D 5e NPC sheet drawer integration.
+
 ## [1.1.0] - 2026-07-11
 
 ### Added
