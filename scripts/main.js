@@ -460,7 +460,15 @@ function imageKind(path) {
 }
 
 function getFilePickerImplementation() {
-  return foundry.applications?.apps?.FilePicker?.implementation ?? globalThis.FilePicker;
+  const applicationV2Picker = foundry.applications?.apps?.FilePicker?.implementation;
+  if ( applicationV2Picker ) return applicationV2Picker;
+  if ( globalThis.FilePicker ) return globalThis.FilePicker;
+  try {
+    if ( typeof FilePicker === "function" ) return FilePicker;
+  } catch (_err) {
+    // Foundry v12 exposes FilePicker as a global lexical binding, not always as globalThis.FilePicker.
+  }
+  return null;
 }
 
 function isExternalUrl(path) {

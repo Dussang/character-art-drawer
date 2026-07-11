@@ -2,7 +2,7 @@
   "id": "character-art-drawer",
   "title": "Character Art Drawer",
   "description": "Adds a compact art gallery to D&D 5e character and NPC sheets, allowing users to remember and switch avatar and token artwork.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "authors": [
     {
       "name": "Vladislav"
@@ -14,7 +14,7 @@
   "bugs": "https://github.com/Dussang/character-art-drawer/issues",
   "changelog": "https://github.com/Dussang/character-art-drawer/blob/main/CHANGELOG.md",
   "manifest": "https://raw.githubusercontent.com/Dussang/character-art-drawer/main/module.json",
-  "download": "https://github.com/Dussang/character-art-drawer/releases/download/v1.2.0/character-art-drawer.zip",
+  "download": "https://github.com/Dussang/character-art-drawer/releases/download/v1.2.1/character-art-drawer.zip",
   "compatibility": {
     "minimum": "12",
     "verified": "11",

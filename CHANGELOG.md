@@ -2,6 +2,12 @@
 
 All notable changes to Character Art Drawer are documented in this file.
 
+## [1.2.1] - 2026-07-11
+
+### Fixed
+
+- Fixed the Add image button on Foundry VTT v12, where the legacy FilePicker was not exposed through `globalThis`.
+
 ## [1.2.0] - 2026-07-11
 
 ### Added
